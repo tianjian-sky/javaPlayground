@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ProducerConsumer",
+            "request": "launch",
+            "mainClass": "www.dajiahzongyi.com.ProducerConsumer.ProducerConsumer",
+            "projectName": "demoApp"
+        },
+        {
+            "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
             "mainClass": "${file}"

@@ -1,7 +1,7 @@
 
 import java.lang.Thread;
 
-public class MultiThreadRun {
+public class MultiThreadRunSync {
     public static void main(String args[]) {
         Account acc = new Account(1000);
         ATMThread atm = new ATMThread(acc);
@@ -14,25 +14,40 @@ public class MultiThreadRun {
 
 class Account {
     private double balance;
+    private Object lock = new Object();
     public Account (double amount) {
         this.balance = amount;
     }
 
-    public double withdraw (double amount) {
-        if (amount<= 0 || amount > this.balance) {
-            return -1;
-        } else {
-            this.balance -= amount;
-            return amount;
-        }
+    public synchronized double withdraw (double amount) {
+        // synchronized (this) { 同步块 && 同步方法
+            System.out.println(amount + ":" + this.balance + ":" + "withdraw");
+            if (amount<= 0 || amount > this.balance) {
+                return -1;
+            } else {
+                try {
+                    Thread.sleep(3000);  
+                } catch (Exception e) {
+                }
+                this.balance -= amount;
+                return amount;
+            }
+        // }
     }
-    public double epay (double amount) {
-        if (amount<= 0 || amount > this.balance) {
-            return -1;
-        } else {
-            this.balance -= amount;
-            return amount;
-        }
+    public synchronized double epay (double amount) {
+        // synchronized (this) { 同步块 && 同步方法
+            System.out.println(amount + ":" + this.balance + ":" + "epay");
+            if (amount<= 0 || amount > this.balance) {
+                return -1;
+            } else {
+                try {
+                    Thread.sleep(3000);  
+                } catch (Exception e) {
+                }
+                this.balance -= amount;
+                return amount;
+            }
+        // }
     }
 }
 
