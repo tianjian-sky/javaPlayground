@@ -1,3 +1,11 @@
+import java.util.concurrent.Semaphore;
+
+/**
+ * 
+ * 用信号量代替synchronized ,notify, wait
+ * 实现生产者消费者问题
+ * 
+ */
 public class ProducerConsumer {
     public static void main(String args[]) {
         Repo rep = new Repo();
@@ -16,6 +24,12 @@ public class ProducerConsumer {
     }
 }
 
+class Sem {
+    public static final Semaphore MUTEX = new Semaphore(1); // 互斥信号量，仓库许可数为1
+    public static final Semaphore CANPUT = new Semaphore(10); // 仓库中放入产品多许可数
+    public static final Semaphore CANGET = new Semaphore(0); // 取出产品的许可数，初始是0
+}
+
 class Consumer extends Thread{
     public String name;
     private Repo rep;
@@ -32,7 +46,16 @@ class Consumer extends Thread{
             } catch (Exception e) {
                 //TODO: handle exception
             }
-            rep.get();
+            try {
+                Sem.CANGET.acquire();
+                Sem.MUTEX.acquire();
+                rep.get();
+            } catch (InterruptedException e) {
+                //TODO: handle exception
+            } finally {
+                Sem.MUTEX.release();
+                Sem.CANPUT.release();
+            }
         }
     }
 }
@@ -53,7 +76,17 @@ class Producer extends Thread {
             } catch (Exception e) {
                 //TODO: handle exception
             }
-            rep.put();
+            try {
+                Sem.CANPUT.acquire();
+                Sem.MUTEX.acquire();
+                rep.put();
+            } catch (InterruptedException e) {
+                //TODO: handle exception
+            } finally {
+                Sem.MUTEX.release();
+                Sem.CANGET.release();
+            }
+            
         }
     }
 }
@@ -63,45 +96,32 @@ class Repo {
     private int[] rack = new int[10];
     private int putIndex = 0;
     private int getIndex = 0;
-    private int dataCount = 0;
     private int data = 0;
     public void put () {
-        synchronized(this.tempLock) {
-        
-            while (dataCount == rack.length) {
-            // if (dataCount == rack.length) {
-                try {
-                    // this.wait(); // IllegalMonitorStateException
-                    this.tempLock.wait();
-                } catch (InterruptedException e) {
-                    //TODO: handle exception
-                }
-                
-            }
+        // synchronized(this.tempLock) {
             rack[putIndex] = data++;
             System.out.println("生产者" + Thread.currentThread().getName() + "向货架【"+ putIndex + "]位置放入货物：" + data);
             putIndex = (putIndex+1) % rack.length;
-            dataCount++;
-            this.tempLock.notify();
-        }
+            // dataCount++;
+        // }
     }
 
     public void get() {
-        synchronized(this.tempLock) {
-            while (dataCount == 0) {
-            // if (dataCount == 0) 此处不能用if，因为消费者消费完后会做一次notify，被阻塞的另外一个消费者线程如果写在if里，在被唤醒后就直接向后做取空操作了
-                try {
-                    this.tempLock.wait();
-                } catch (InterruptedException e) {
-                    //TODO: handle exception
-                }
+        // synchronized(this.tempLock) {
+            // while (dataCount == 0) {
+            // // if (dataCount == 0) 此处不能用if，因为消费者消费完后会做一次notify，被阻塞的另外一个消费者线程如果写在if里，在被唤醒后就直接向后做取空操作了
+            //     try {
+            //         this.tempLock.wait();
+            //     } catch (InterruptedException e) {
+            //         //TODO: handle exception
+            //     }
                 
-            }
+            // }
             int pro = rack[getIndex];
             System.out.println("\t\t消费者" + Thread.currentThread().getName() + "向货架【"+ getIndex + "]位置取出货物：" + pro);
             getIndex = (getIndex+1) % rack.length;
-            dataCount--;
-            this.tempLock.notify();
-        }
+            // dataCount--;
+            // this.tempLock.notify();
+        // }
     }
 }

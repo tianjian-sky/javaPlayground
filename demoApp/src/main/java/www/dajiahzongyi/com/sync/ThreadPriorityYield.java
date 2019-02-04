@@ -1,6 +1,7 @@
 // package demoApp.src.main.java.www.dajiazhongyi.com;
 
 import java.lang.Thread;
+import java.util.concurrent.Semaphore;
 
 /**
  * Hello world!
@@ -22,18 +23,30 @@ public class ThreadPriorityYield {
 
 class DistrubuteThread extends Thread {
     private static int formCount = 50;
-    private static Object lock = new Object();
+    private static Object lock = new Object(); // 1.synchronized
+    private static Semaphore sem = new Semaphore(1); // 2. semaphore
     DistrubuteThread (String name) {
         super(name);
     }
     public void run() {
-        synchronized (DistrubuteThread.lock) {
-            while (formCount >= 0) {
-                System.out.println(Thread.currentThread().getName() + "正在分发：" + formCount--); // 线程不安全
+        while (formCount >= 0) {
+            synchronized (DistrubuteThread.lock) {
+                try {
+                    // sem.acquire();
+                    try {
+                        Thread.sleep(200);
+                    } catch (Exception e) {
+                        //TODO: handle exception
+                    }
+                    System.out.println(Thread.currentThread().getName() + "正在分发：" + formCount--); // 线程不安全
+                    // sem.release();
+                } catch (Exception e) {
+                    //TODO: handle exception
+                }
             }
         }
-        
     }
 }
 
 
+ 
