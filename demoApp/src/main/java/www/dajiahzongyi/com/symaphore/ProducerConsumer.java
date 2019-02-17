@@ -26,7 +26,7 @@ public class ProducerConsumer {
 
 class Sem {
     public static final Semaphore MUTEX = new Semaphore(1); // 互斥信号量，仓库许可数为1
-    public static final Semaphore CANPUT = new Semaphore(10); // 仓库中放入产品多许可数
+    public static final Semaphore CANPUT = new Semaphore(10, true); // 仓库中放入产品多许可数
     public static final Semaphore CANGET = new Semaphore(0); // 取出产品的许可数，初始是0
 }
 

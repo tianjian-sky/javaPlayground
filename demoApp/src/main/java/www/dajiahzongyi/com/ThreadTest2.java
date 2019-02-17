@@ -47,21 +47,21 @@ class MyThread extends Thread {
             public void run () {
                 long count = 10000000000L;
                 while (count-- >= 0) {
-
+                    System.out.println(this.getName() + "runninng:");
                 }
             }
         };
 
         // WAITING
         t.start();
-        try {
-            t.join(); // Waits for this thread to die. 调用线程等待该线程完成后，才能继续用下运行。
-        } catch (InterruptedException e) {
+        // try {
+        //     t.join(); // Waits for this thread to die. 调用线程等待该线程完成后，才能继续用下运行。
+        // } catch (InterruptedException e) {
             
-        }
+        // }
         long count = 10000000000L;
         while (count-- >= 0) {
-
+            System.out.println(this.getName() + "runninng:");
         }
     }
 }    
